@@ -1,0 +1,74 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "Infant Care",
+      "ageRange": "6 weeks - 18 months",
+      "description": "Our infant program provides nurturing care in a safe and stimulating environment. Our experienced caregivers focus on supporting your baby's natural development while providing the attention, care, and play experiences they need.",
+      "features": [
+        "Low child-to-caregiver ratio (3:1)",
+        "Daily reports and communication",
+        "Personalized care routines",
+        "Safe sleep practices",
+        "Tummy time and sensory activities"
+      ],
+      "icon": "baby"
+    },
+    {
+      "id": 2,
+      "name": "Toddler Program",
+      "ageRange": "18 months - 3 years",
+      "description": "Our toddler program is designed for active, curious young children. We focus on language development, social skills, and providing plenty of opportunities for safe exploration and learning through play.",
+      "features": [
+        "Potty training support",
+        "Language development activities",
+        "Introduction to routines",
+        "Social interaction guidance",
+        "Fine and gross motor development"
+      ],
+      "icon": "child"
+    },
+    {
+      "id": 3,
+      "name": "Preschool",
+      "ageRange": "3 - 5 years",
+      "description": "Our preschool program prepares children for kindergarten through a balance of play and structured learning activities. We focus on key developmental areas including cognitive, social, emotional, and physical growth.",
+      "features": [
+        "Pre-reading and pre-math skills",
+        "Arts and creative expression",
+        "Science and nature exploration",
+        "Social skill development",
+        "Kindergarten readiness"
+      ],
+      "icon": "school"
+    },
+    {
+      "id": 4,
+      "name": "After School Care",
+      "ageRange": "5 - 12 years",
+      "description": "Our after-school program offers a safe and enriching environment for school-age children. We provide homework support, engaging activities, and opportunities for relaxation and play after a full day of school.",
+      "features": [
+        "Homework assistance",
+        "Recreational activities",
+        "Special interest clubs",
+        "Outdoor play time",
+        "Nutritious snacks"
+      ],
+      "icon": "clock"
+    },
+    {
+      "id": 5,
+      "name": "Summer Program",
+      "ageRange": "3 - 12 years",
+      "description": "Our summer program offers exciting and educational activities to keep children engaged during school breaks. Each week features different themes with field trips, special guests, and hands-on projects.",
+      "features": [
+        "Weekly themes",
+        "Field trips",
+        "Water play days",
+        "Arts and crafts",
+        "STEM activities"
+      ],
+      "icon": "sun"
+    }
+  ]
+}

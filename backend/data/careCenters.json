@@ -1,0 +1,58 @@
+{
+  "careCenters": [
+    {
+      "id": 1,
+      "name": "Downtown Care Center",
+      "type": "Corporate",
+      "address": "101 Business Plaza, Downtown, USA",
+      "phone": "555-111-2222",
+      "email": "downtown@hhcc.com",
+      "hours": "7:00 AM - 6:30 PM",
+      "capacity": 75,
+      "ageGroups": ["Infant", "Toddler", "Preschool"],
+      "description": "Our flagship corporate care center located in the heart of the downtown business district. Provides convenient childcare for working parents with modern facilities and experienced staff.",
+      "images": [
+        "/images/centers/downtown-1.jpg",
+        "/images/centers/downtown-2.jpg",
+        "/images/centers/downtown-3.jpg"
+      ],
+      "features": ["Secure Access", "Outdoor Playground", "Education Program", "Meals Provided", "Webcam Access"]
+    },
+    {
+      "id": 2,
+      "name": "Greenfield Community Center",
+      "type": "Community",
+      "address": "25 Park Street, Greenfield, USA",
+      "phone": "555-333-4444",
+      "email": "greenfield@hhcc.com",
+      "hours": "7:30 AM - 6:00 PM",
+      "capacity": 45,
+      "ageGroups": ["Toddler", "Preschool", "School-Age"],
+      "description": "A warm, community-focused care center that emphasizes local values and community involvement. Located near Greenfield Park with plenty of outdoor activities.",
+      "images": [
+        "/images/centers/greenfield-1.jpg",
+        "/images/centers/greenfield-2.jpg",
+        "/images/centers/greenfield-3.jpg"
+      ],
+      "features": ["Outdoor Activities", "Community Events", "Education Program", "Meals Provided", "After-School Programs"]
+    },
+    {
+      "id": 3,
+      "name": "Lakeview Care Center",
+      "type": "Corporate",
+      "address": "350 Lakeshore Drive, Lakeview, USA",
+      "phone": "555-555-6666",
+      "email": "lakeview@hhcc.com",
+      "hours": "7:00 AM - 7:00 PM",
+      "capacity": 60,
+      "ageGroups": ["Infant", "Toddler", "Preschool", "School-Age"],
+      "description": "Located by beautiful Lake Vista, our Lakeview center offers extended hours for busy professionals with a focus on early childhood development and education.",
+      "images": [
+        "/images/centers/lakeview-1.jpg",
+        "/images/centers/lakeview-2.jpg",
+        "/images/centers/lakeview-3.jpg"
+      ],
+      "features": ["Secure Access", "Lakeside Views", "STEM Program", "Meals Provided", "Extended Hours", "Summer Camps"]
+    }
+  ]
+}

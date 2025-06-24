@@ -1,0 +1,24 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "password": "password123",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "555-123-4567",
+      "address": "123 Main St, Anytown, USA"
+    },
+    {
+      "id": 2,
+      "username": "jane_smith",
+      "email": "jane@example.com",
+      "password": "password123",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "phone": "555-987-6543",
+      "address": "456 Oak Ave, Someville, USA"
+    }
+  ]
+}
