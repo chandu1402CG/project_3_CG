@@ -2,10 +2,27 @@ import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
 import ServiceCard from '../components/ServiceCard';
 import { fetchServices, fetchCareCenters } from '../services/api';
+import { 
+  Container, 
+  Typography, 
+  Grid, 
+  Box, 
+  Paper,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Alert 
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import ShieldIcon from '@mui/icons-material/Shield';
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 
 const HomePage = () => {
   const [services, setServices] = useState([]);
-  const [centers, setCenters] = useState([]);
+  const [, setCenters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,102 +50,209 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="home-page">
+    <Box>
       <Hero 
         title="Quality Child Care for Every Family" 
         subtitle="Providing nurturing care and early education in a safe, stimulating environment"
         cta={{ text: "Find a Care Center", link: "/care-centers" }}
       />
 
-      <section className="intro-section">
-        <div className="container">
-          <h2>Welcome to Helping Hands Child Care</h2>
-          <p>
+      <Box component="section" sx={{ py: 6, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h3" component="h2" align="center" gutterBottom>
+            Welcome to Helping Hands Child Care
+          </Typography>
+          <Typography variant="body1" align="center" paragraph sx={{ mb: 5, maxWidth: 800, mx: 'auto' }}>
             At Helping Hands Child Care, we believe every child deserves the best start in life. 
             Our centers provide safe, nurturing environments where children can learn, play, and grow.
             With both corporate and community care models, we offer flexible options to meet the needs of all families.
-          </p>
-          <div className="intro-features">
-            <div className="feature">
-              <i className="fas fa-shield-alt"></i>
-              <h3>Safe & Secure</h3>
-              <p>State-of-the-art security systems and strict check-in/out procedures</p>
-            </div>
-            <div className="feature">
-              <i className="fas fa-apple-alt"></i>
-              <h3>Nutritious Meals</h3>
-              <p>Healthy, balanced meals and snacks prepared fresh daily</p>
-            </div>
-            <div className="feature">
-              <i className="fas fa-book-open"></i>
-              <h3>Educational Programs</h3>
-              <p>Age-appropriate learning activities and curriculum</p>
-            </div>
-            <div className="feature">
-              <i className="fas fa-smile"></i>
-              <h3>Caring Staff</h3>
-              <p>Experienced, qualified caregivers who love working with children</p>
-            </div>
-          </div>
-        </div>
-      </section>
+          </Typography>
+          
+          <Grid container spacing={4} sx={{ mt: 4 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper elevation={0} sx={{ p: 3, height: '100%', textAlign: 'center', bgcolor: 'rgba(63, 81, 181, 0.05)' }}>
+                <Box sx={{ color: 'primary.main', mb: 2, fontSize: '2.5rem' }}>
+                  <ShieldIcon fontSize="inherit" />
+                </Box>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Safe & Secure
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  State-of-the-art security systems and strict check-in/out procedures
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper elevation={0} sx={{ p: 3, height: '100%', textAlign: 'center', bgcolor: 'rgba(63, 81, 181, 0.05)' }}>
+                <Box sx={{ color: 'primary.main', mb: 2, fontSize: '2.5rem' }}>
+                  <LocalDiningIcon fontSize="inherit" />
+                </Box>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Nutritious Meals
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Healthy, balanced meals and snacks prepared fresh daily
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper elevation={0} sx={{ p: 3, height: '100%', textAlign: 'center', bgcolor: 'rgba(63, 81, 181, 0.05)' }}>
+                <Box sx={{ color: 'primary.main', mb: 2, fontSize: '2.5rem' }}>
+                  <MenuBookIcon fontSize="inherit" />
+                </Box>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Educational Programs
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Age-appropriate learning activities and curriculum
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper elevation={0} sx={{ p: 3, height: '100%', textAlign: 'center', bgcolor: 'rgba(63, 81, 181, 0.05)' }}>
+                <Box sx={{ color: 'primary.main', mb: 2, fontSize: '2.5rem' }}>
+                  <EmojiEmotionsIcon fontSize="inherit" />
+                </Box>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Caring Staff
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Experienced, qualified caregivers who love working with children
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
 
-      <section className="services-section">
-        <div className="container">
-          <h2>Our Services</h2>
-          <p className="section-intro">
+      <Box component="section" sx={{ py: 6 }}>
+        <Container maxWidth="lg">
+          <Typography variant="h3" component="h2" align="center" gutterBottom>
+            Our Services
+          </Typography>
+          <Typography variant="body1" align="center" paragraph sx={{ mb: 5, maxWidth: 800, mx: 'auto' }}>
             We offer a range of child care services to meet your family's needs, from infant care to after-school programs.
-          </p>
+          </Typography>
           
           {loading ? (
-            <p>Loading services...</p>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
           ) : error ? (
-            <p className="error-message">{error}</p>
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
           ) : (
-            <div className="services-grid">
+            <Grid container spacing={3}>
               {services.slice(0, 3).map(service => (
-                <ServiceCard key={service.id} service={service} />
+                <Grid item xs={12} sm={6} md={4} key={service.id}>
+                  <ServiceCard service={service} />
+                </Grid>
               ))}
-            </div>
+            </Grid>
           )}
           
-          <div className="view-all-container">
-            <a href="/services" className="view-all-btn">View All Services</a>
-          </div>
-        </div>
-      </section>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Button 
+              component={RouterLink} 
+              to="/services" 
+              variant="outlined" 
+              color="primary"
+              size="large"
+            >
+              View All Services
+            </Button>
+          </Box>
+        </Container>
+      </Box>
 
-      <section className="testimonials-section">
-        <div className="container">
-          <h2>What Parents Say</h2>
-          <div className="testimonials-grid">
-            <div className="testimonial">
-              <p>"Helping Hands has been a lifesaver for our family. The staff is amazing and our daughter loves going there every day!"</p>
-              <div className="testimonial-author">- Sarah Johnson</div>
-            </div>
-            <div className="testimonial">
-              <p>"The educational program is exceptional. Our son has learned so much since starting at Helping Hands."</p>
-              <div className="testimonial-author">- Michael Chen</div>
-            </div>
-            <div className="testimonial">
-              <p>"As a working parent, I appreciate the flexible hours and the peace of mind knowing my children are in good hands."</p>
-              <div className="testimonial-author">- Lisa Rodriguez</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Box component="section" sx={{ py: 6, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h3" component="h2" align="center" gutterBottom>
+            What Parents Say
+          </Typography>
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+            <Grid item xs={12} md={4}>
+              <Card elevation={1} sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="body1" paragraph sx={{ fontStyle: 'italic' }}>
+                    "Helping Hands has been a lifesaver for our family. The staff is amazing and our daughter loves going there every day!"
+                  </Typography>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    - Sarah Johnson
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card elevation={1} sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="body1" paragraph sx={{ fontStyle: 'italic' }}>
+                    "The educational program is exceptional. Our son has learned so much since starting at Helping Hands."
+                  </Typography>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    - Michael Chen
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Card elevation={1} sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="body1" paragraph sx={{ fontStyle: 'italic' }}>
+                    "As a working parent, I appreciate the flexible hours and the peace of mind knowing my children are in good hands."
+                  </Typography>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    - Lisa Rodriguez
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
 
-      <section className="cta-section">
-        <div className="container">
-          <h2>Ready to Join Our Family?</h2>
-          <p>Register today to explore our care centers and schedule a visit.</p>
-          <div className="cta-buttons">
-            <a href="/register" className="cta-primary">Register Now</a>
-            <a href="/care-centers" className="cta-secondary">Find a Care Center</a>
-          </div>
-        </div>
-      </section>
-    </div>
+      <Box 
+        component="section" 
+        sx={{ 
+          py: 8, 
+          bgcolor: 'primary.main', 
+          color: 'white',
+          textAlign: 'center'
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography variant="h3" component="h2" gutterBottom>
+            Ready to Join Our Family?
+          </Typography>
+          <Typography variant="h6" paragraph sx={{ mb: 4 }}>
+            Register today to explore our care centers and schedule a visit.
+          </Typography>
+          <Box sx={{ '& > :not(style)': { mx: 1 } }}>
+            <Button 
+              component={RouterLink} 
+              to="/register" 
+              variant="contained" 
+              color="secondary"
+              size="large"
+              sx={{ px: 4 }}
+            >
+              Register Now
+            </Button>
+            <Button 
+              component={RouterLink} 
+              to="/care-centers" 
+              variant="outlined" 
+              color="inherit"
+              size="large"
+              sx={{ px: 4 }}
+            >
+              Find a Care Center
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 

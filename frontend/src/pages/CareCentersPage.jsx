@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import CareCenterCard from '../components/CareCenterCard';
 import { fetchCareCenters } from '../services/api';
 import Hero from '../components/Hero';
+import {
+  Container,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
+  Box,
+  CircularProgress,
+  Alert
+} from '@mui/material';
 
 const CareCentersPage = () => {
   const [careCenters, setCareCenters] = useState([]);
@@ -36,50 +48,63 @@ const CareCentersPage = () => {
     : careCenters.filter(center => center.type.toLowerCase() === filter.toLowerCase());
 
   return (
-    <div className="care-centers-page">
+    <Box>
       <Hero 
         title="Our Care Centers" 
         subtitle="Find the perfect care center for your child"
       />
 
-      <div className="container">
-        <section className="centers-intro">
-          <h2>Find a Care Center</h2>
-          <p>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" component="h2" gutterBottom>
+            Find a Care Center
+          </Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
             Helping Hands Child Care operates both corporate and community care centers to meet the diverse needs of families.
             Browse our centers below to find the perfect fit for your child.
-          </p>
+          </Typography>
           
-          <div className="filter-controls">
-            <label htmlFor="center-filter">Filter by type: </label>
-            <select 
-              id="center-filter" 
-              value={filter} 
-              onChange={handleFilterChange}
-              className="filter-dropdown"
-            >
-              <option value="all">All Centers</option>
-              <option value="corporate">Corporate Centers</option>
-              <option value="community">Community Centers</option>
-            </select>
-          </div>
-        </section>
+          <Box sx={{ mt: 3, mb: 4 }}>
+            <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+              <InputLabel id="center-filter-label">Filter by type</InputLabel>
+              <Select
+                labelId="center-filter-label"
+                id="center-filter"
+                value={filter}
+                onChange={handleFilterChange}
+                label="Filter by type"
+              >
+                <MenuItem value="all">All Centers</MenuItem>
+                <MenuItem value="corporate">Corporate Centers</MenuItem>
+                <MenuItem value="community">Community Centers</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
 
-        <section className="centers-grid">
+        <Box sx={{ mt: 4 }}>
           {loading ? (
-            <p className="loading-message">Loading care centers...</p>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
           ) : error ? (
-            <p className="error-message">{error}</p>
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
           ) : filteredCenters.length === 0 ? (
-            <p className="no-results">No care centers found matching your criteria.</p>
+            <Alert severity="info">No care centers found matching your criteria.</Alert>
           ) : (
-            filteredCenters.map(center => (
-              <CareCenterCard key={center.id} center={center} />
-            ))
+            <Grid container spacing={3}>
+              {filteredCenters.map(center => (
+                <Grid item xs={12} key={center.id}>
+                  <CareCenterCard center={center} />
+                </Grid>
+              ))}
+            </Grid>
           )}
-        </section>
-      </div>
-    </div>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

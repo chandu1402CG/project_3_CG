@@ -1,8 +1,20 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { loginUser } from '../services/api';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Paper,
+  CircularProgress,
+  Link,
+  Grid
+} from '@mui/material';
 
-const LoginPage = () => {
+const LoginPage = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const message = location.state?.message;
@@ -34,6 +46,11 @@ const LoginPage = () => {
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(response.data));
       
+      // Update login state in parent component if provided
+      if (setIsLoggedIn) {
+        setIsLoggedIn(true);
+      }
+      
       // Redirect to home page
       navigate('/', { 
         state: { 
@@ -49,61 +66,111 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h2>Login to Your Account</h2>
-        
-        {message && (
-          <div className="success-message">
-            {message}
-          </div>
-        )}
-        
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
+    <Box 
+      sx={{ 
+        py: 8, 
+        bgcolor: 'background.default',
+        minHeight: 'calc(100vh - 64px - 240px)'
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper 
+          elevation={2}
+          sx={{
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography 
+            component="h1" 
+            variant="h4" 
+            align="center"
+            sx={{ mb: 3 }}
+          >
+            Login to Your Account
+          </Typography>
+          
+          {message && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
+          
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
               id="email"
+              label="Email Address"
               name="email"
+              autoComplete="email"
+              autoFocus
               value={formData.email}
               onChange={handleChange}
-              required
             />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
+            
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
               type="password"
               id="password"
-              name="password"
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              required
             />
-          </div>
-          
-          <div className="forgot-password">
-            <a href="/forgot-password">Forgot password?</a>
-          </div>
-          
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        
-        <div className="register-link">
-          Don't have an account? <a href="/register">Register</a>
-        </div>
-      </div>
-    </div>
+            
+            <Box sx={{ textAlign: 'right', mt: 1 }}>
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
+                variant="body2"
+                underline="hover"
+              >
+                Forgot password?
+              </Link>
+            </Box>
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              size="large"
+              disabled={loading}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+            </Button>
+            
+            <Grid container justifyContent="center">
+              <Grid item>
+                <Typography variant="body2" align="center">
+                  Don't have an account?{' '}
+                  <Link 
+                    component={RouterLink} 
+                    to="/register" 
+                    underline="hover"
+                    fontWeight="medium"
+                  >
+                    Register
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

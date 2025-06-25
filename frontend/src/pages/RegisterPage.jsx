@@ -1,6 +1,19 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/api';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Paper,
+  CircularProgress,
+  Link,
+  Grid,
+  Divider
+} from '@mui/material';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -24,6 +37,7 @@ const RegisterPage = () => {
       [name]: value
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -45,7 +59,7 @@ const RegisterPage = () => {
       });
       
       // Omit confirmPassword when sending to API
-      const { confirmPassword, ...registerData } = formData;
+      const { confirmPassword: _, ...registerData } = formData;
       
       console.log('Calling registerUser API with data', {
         ...registerData,
@@ -56,9 +70,6 @@ const RegisterPage = () => {
       
       // Handle successful registration
       console.log('Registration successful:', response);
-      
-      // Show alert for debugging purposes
-      alert(`Registration successful! User ID: ${response.data.id}`);
       
       // Redirect to login page
       navigate('/login', { 
@@ -81,129 +92,182 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="register-page">
-      <div className="register-container">
-        <h2>Create an Account</h2>
-        <p className="register-intro">
-          Join Helping Hands Child Care to schedule services, manage your account, and more.
-        </p>
+    <Box 
+      sx={{ 
+        py: 8, 
+        bgcolor: 'background.default',
+        minHeight: 'calc(100vh - 64px - 240px)'
+      }}
+    >
+      <Container maxWidth="md">
+        <Paper 
+          elevation={2}
+          sx={{
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography 
+            component="h1" 
+            variant="h4" 
+            align="center"
+            sx={{ mb: 2 }}
+          >
+            Create an Account
+          </Typography>
+          
+          <Typography 
+            variant="body1" 
+            color="text.secondary" 
+            align="center"
+            sx={{ mb: 4 }}
+          >
+            Join Helping Hands Child Care to schedule services, manage your account, and more.
+          </Typography>
+          
+          <Divider sx={{ mb: 4 }} />
+          
+          {error && (
+            <Alert severity="error" sx={{ mb: 4 }}>
+              {error}
+            </Alert>
+          )}
         
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                minLength="6"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                minLength="6"
-              />
-            </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <textarea
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <button type="submit" className="register-btn" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
-        
-        <div className="login-link">
-          Already have an account? <Link to="/login">Login</Link>
-        </div>
-      </div>
-    </div>
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="given-name"
+                  name="firstName"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="family-name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  inputProps={{ minLength: 6 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  inputProps={{ minLength: 6 }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="phone"
+                  label="Phone Number"
+                  name="phone"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  multiline
+                  rows={3}
+                  id="address"
+                  label="Address"
+                  name="address"
+                  autoComplete="street-address"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              size="large"
+              disabled={loading}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
+            </Button>
+            <Grid container justifyContent="center">
+              <Grid item>
+                <Typography variant="body2" align="center">
+                  Already have an account?{' '}
+                  <Link 
+                    component={RouterLink} 
+                    to="/login" 
+                    underline="hover"
+                    fontWeight="medium"
+                  >
+                    Login
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

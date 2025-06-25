@@ -1,5 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
 import './App.css'
 
 // Components
@@ -13,6 +17,18 @@ import RegisterPage from './pages/RegisterPage'
 import CareCentersPage from './pages/CareCentersPage'
 import ServicesPage from './pages/ServicesPage'
 
+// Create a theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3f51b5',
+    },
+    secondary: {
+      main: '#f50057',
+    },
+  },
+});
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -25,24 +41,27 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/care-centers" element={<CareCentersPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            {/* Add more routes as needed */}
-          </Routes>
-        </main>
-        
-        <Footer />
-      </div>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+          
+          <Container component="main" sx={{ flexGrow: 1, py: 3 }}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/care-centers" element={<CareCentersPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              {/* Add more routes as needed */}
+            </Routes>
+          </Container>
+          
+          <Footer />
+        </Box>
+      </Router>
+    </ThemeProvider>
   )
 }
 

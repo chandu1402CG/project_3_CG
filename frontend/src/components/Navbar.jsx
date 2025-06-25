@@ -1,5 +1,32 @@
-import { Link } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  MenuItem,
+  Container,
+  Avatar,
+  Button,
+  Tooltip,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 
 // Helper function to get user initials
 const getUserInitials = (name) => {
@@ -13,48 +40,16 @@ const getUserInitials = (name) => {
   return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
 };
 
-const UserAvatar = ({ user, onClick, isOpen, dropdownRef }) => {
-  // Get initials from first and last name
-  const initials = getUserInitials(user?.name);
-  
-  return (
-    <div className="user-avatar-container" ref={dropdownRef}>
-      <div className="user-avatar" onClick={onClick}>
-        {user?.avatar ? (
-          <img src={user.avatar} alt={user.name} />
-        ) : (
-          <span>{initials}</span>
-        )}
-      </div>
-      
-      <div className={`avatar-dropdown ${isOpen ? 'show' : ''}`}>
-        <div className="user-info">
-          <h4 className="user-name">{user?.name || 'User'}</h4>
-          <p className="user-email">{user?.email || ''}</p>
-        </div>
-        <ul className="dropdown-links">
-          <li>
-            <Link to="/profile">My Profile</Link>
-          </li>
-          <li>
-            <Link to="/schedule">My Schedule</Link>
-          </li>
-          <li>
-            <button className="logout" onClick={() => window.dispatchEvent(new CustomEvent('user-logout'))}>
-              Logout
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);  const [dropdownOpen, setDropdownOpen] = useState(false);
+const Navbar = ({ isLoggedIn: propIsLoggedIn }) => {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(propIsLoggedIn || false);
   const [userData, setUserData] = useState(null);
-  const dropdownRef = useRef(null);
+  
+  // Mobile drawer state
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
+  // User menu state
+  const [anchorElUser, setAnchorElUser] = useState(null);
   
   useEffect(() => {
     // Check if user is logged in (from localStorage)
@@ -74,126 +69,283 @@ const Navbar = () => {
       setUserData(null);
     }
     
-    // Listen for custom logout event
-    const handleLogoutEvent = () => handleLogout();
-    window.addEventListener('user-logout', handleLogoutEvent);
-    
-    return () => {
-      window.removeEventListener('user-logout', handleLogoutEvent);
-    };
-  }, []);
-  
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
+    // Update isLoggedIn when the prop changes
+    if (propIsLoggedIn !== undefined) {
+      setIsLoggedIn(propIsLoggedIn);
     }
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  }, [propIsLoggedIn]);
   
   const handleLogout = () => {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserData(null);
-    setDropdownOpen(false);
-    // Redirect to home page
-    window.location.href = '/';
+    setAnchorElUser(null);
+    navigate('/');
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
   
-  const toggleDropdown = () => {
-    setDropdownOpen(prev => !prev);
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+  
+  // Drawer content for mobile menu
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', width: 250 }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center',
+          my: 2
+        }}
+      >
+        <Typography variant="h6" color="primary" fontWeight="bold">
+          Helping Hands
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Child Care
+        </Typography>
+      </Box>
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton component={RouterLink} to="/" sx={{ textAlign: 'center' }}>
+            <ListItemIcon sx={{ minWidth: '40px' }}><HomeIcon /></ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton component={RouterLink} to="/care-centers" sx={{ textAlign: 'center' }}>
+            <ListItemIcon sx={{ minWidth: '40px' }}><LocationOnIcon /></ListItemIcon>
+            <ListItemText primary="Care Centers" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton component={RouterLink} to="/services" sx={{ textAlign: 'center' }}>
+            <ListItemIcon sx={{ minWidth: '40px' }}><MedicalServicesIcon /></ListItemIcon>
+            <ListItemText primary="Services" />
+          </ListItemButton>
+        </ListItem>
+        
+        {isLoggedIn ? (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/schedule" sx={{ textAlign: 'center' }}>
+                <ListItemIcon sx={{ minWidth: '40px' }}><CalendarMonthIcon /></ListItemIcon>
+                <ListItemText primary="Schedule" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/profile" sx={{ textAlign: 'center' }}>
+                <ListItemIcon sx={{ minWidth: '40px' }}><PersonIcon /></ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleLogout} sx={{ textAlign: 'center' }}>
+                <ListItemIcon sx={{ minWidth: '40px' }}><LogoutIcon color="error" /></ListItemIcon>
+                <ListItemText primary="Logout" sx={{ color: 'error.main' }} />
+              </ListItemButton>
+            </ListItem>
+          </>
+        ) : (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/register" sx={{ textAlign: 'center' }}>
+                <ListItemText primary="Register" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/login" sx={{ textAlign: 'center' }}>
+                <ListItemText primary="Login" />
+              </ListItemButton>
+            </ListItem>
+          </>
+        )}
+      </List>
+    </Box>
+  );
+  
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          <span className="logo-text">Helping Hands</span>
-          <span className="logo-subtext">Child Care</span>
-        </Link>
-
-        <div className="menu-icon" onClick={toggleMenu}>
-          <i className={isMenuOpen ? 'fas fa-times' : 'fas fa-bars'} />
-        </div>
-
-        <ul className={isMenuOpen ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item">
-            <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+    <AppBar position="sticky" color="default" elevation={2} sx={{ bgcolor: 'white' }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {/* Logo - always visible */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box 
+              component={RouterLink}
+              to="/"
+              sx={{ 
+                textDecoration: 'none', 
+                display: 'flex', 
+                flexDirection: 'column'
+              }}
+            >
+              <Typography variant="h6" color="primary" fontWeight="bold" sx={{ lineHeight: 1.2 }}>
+                Helping Hands
+              </Typography>
+              <Typography variant="caption" color="text.primary">
+                Child Care
+              </Typography>
+            </Box>
+          </Box>
+          
+          {/* Mobile menu icon */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              aria-label="menu"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleDrawerToggle}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
+          
+          {/* Desktop navigation */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
+            <Button color="inherit" component={RouterLink} to="/" sx={{ mx: 1 }}>
               Home
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/care-centers" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            </Button>
+            <Button color="inherit" component={RouterLink} to="/care-centers" sx={{ mx: 1 }}>
               Care Centers
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/services" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            </Button>
+            <Button color="inherit" component={RouterLink} to="/services" sx={{ mx: 1 }}>
               Services
-            </Link>
-          </li>
-          
-          {/* Mobile menu: schedule and profile links shown in mobile menu when logged in */}
-          {isLoggedIn && isMenuOpen && (
-            <>
-              <li className="nav-item mobile-only">
-                <Link to="/schedule" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            </Button>
+            {isLoggedIn && (
+              <>
+                <Button color="inherit" component={RouterLink} to="/schedule" sx={{ mx: 1 }}>
                   Schedule
-                </Link>
-              </li>
-              <li className="nav-item mobile-only">
-                <Link to="/profile" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                </Button>
+                <Button color="inherit" component={RouterLink} to="/profile" sx={{ mx: 1 }}>
                   Profile
-                </Link>
-              </li>
-              <li className="nav-item mobile-only">
-                <button className="nav-link btn-logout" onClick={handleLogout}>
-                  Logout
-                </button>
-              </li>
-            </>
-          )}
+                </Button>
+              </>
+            )}
+          </Box>
           
-          {/* Auth Links (Login/Register) or User Avatar */}
-          {isLoggedIn ? (
-            <li className="nav-item user-menu">
-              <UserAvatar 
-                user={userData}
-                onClick={toggleDropdown}
-                isOpen={dropdownOpen}
-                dropdownRef={dropdownRef}
-              />
-            </li>
-          ) : (
-            <>
-              <li className="nav-item">
-                <Link 
-                  to="/register" 
-                  className={`nav-link btn-register ${isLoggedIn ? 'disabled-link' : ''}`}
-                  onClick={() => !isLoggedIn && setIsMenuOpen(false)}
+          {/* Auth buttons or User avatar */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+            {isLoggedIn ? (
+              <Box>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
+                      {userData?.avatar ? (
+                        <img 
+                          src={userData.avatar} 
+                          alt={userData.name || 'User'} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        getUserInitials(userData?.name)
+                      )}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <Box sx={{ px: 2, py: 1, minWidth: 200 }}>
+                    <Typography variant="subtitle1">{userData?.name || 'User'}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {userData?.email || ''}
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  <MenuItem onClick={handleCloseUserMenu} component={RouterLink} to="/profile">
+                    <ListItemIcon>
+                      <PersonIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="My Profile" />
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseUserMenu} component={RouterLink} to="/schedule">
+                    <ListItemIcon>
+                      <CalendarMonthIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="My Schedule" />
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" sx={{ color: 'error.main' }} />
+                  </MenuItem>
+                </Menu>
+              </Box>
+            ) : (
+              <>
+                <Button 
+                  component={RouterLink}
+                  to="/register"
+                  variant="outlined"
+                  color="primary"
+                  sx={{ 
+                    mr: 2, 
+                    borderRadius: 1,
+                    '&.Mui-disabled': { 
+                      borderColor: 'rgba(0, 0, 0, 0.12)', 
+                      color: 'rgba(0, 0, 0, 0.26)' 
+                    }
+                  }}
+                  disabled={isLoggedIn}
                 >
                   Register
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/login" className="nav-link btn-login" onClick={() => setIsMenuOpen(false)}>
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/login"
+                  variant="contained"
+                  color="primary"
+                  sx={{ borderRadius: 1 }}
+                >
                   Login
-                </Link>
-              </li>
-            </>
-          )}
-        </ul>
-      </div>
-    </nav>
+                </Button>
+              </>
+            )}
+          </Box>
+        </Toolbar>
+      </Container>
+      
+      {/* Mobile drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box',
+            width: 280 
+          },
+        }}
+      >
+        {drawer}
+      </Drawer>
+    </AppBar>
   );
 };
 
