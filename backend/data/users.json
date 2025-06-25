@@ -19,6 +19,16 @@
       "lastName": "Smith",
       "phone": "555-987-6543",
       "address": "456 Oak Ave, Someville, USA"
+    },
+    {
+      "id": 3,
+      "username": "chandu",
+      "email": "Nandiki_ChandrashekharReddika@comcast.com",
+      "password": "123456",
+      "firstName": "Nandiki",
+      "lastName": "Chandrashekhar",
+      "phone": "07976895037",
+      "address": "btm"
     }
   ]
 }
