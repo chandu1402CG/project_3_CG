@@ -17,6 +17,7 @@ import RegisterPage from './pages/RegisterPage'
 import CareCentersPage from './pages/CareCentersPage'
 import ServicesPage from './pages/ServicesPage'
 import PaymentPage from './pages/PaymentPage'
+import ProfilePage from './pages/ProfilePage'
 
 // Create a theme
 const theme = createTheme({
@@ -56,6 +57,7 @@ function App() {
               <Route path="/care-centers" element={<CareCentersPage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               {/* Add more routes as needed */}
             </Routes>
           </Container>

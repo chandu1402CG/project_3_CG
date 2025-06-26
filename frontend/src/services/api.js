@@ -56,6 +56,154 @@ export const loginUser = async (credentials) => {
   }
 };
 
+// Fetch all users (Admin only)
+export const fetchAllUsers = async (adminUserId) => {
+  try {
+    console.log('API Service: Admin fetching all users');
+    
+    const response = await fetch(`${API_URL}/auth/all-users?userId=${adminUserId}`);
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to fetch users with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Failed to fetch users with status: ${response.status}`);
+      }
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Fetch all users error:", error);
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (userData) => {
+  try {
+    console.log('API Service: Updating user profile for ID:', userData.id);
+    
+    const response = await fetch(`${API_URL}/auth/update-profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Profile update failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Profile update failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Profile update error:", error);
+    throw error;
+  }
+};
+
+// Add family member or pet
+export const updateFamilyMember = async (memberData) => {
+  try {
+    console.log('API Service: Adding family member or pet for user ID:', memberData.userId);
+    
+    const response = await fetch(`${API_URL}/auth/add-family-member`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(memberData),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Family member update failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Family member update failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Family member update error:", error);
+    throw error;
+  }
+};
+
+// Remove family member or pet
+export const removeFamilyMember = async (memberData) => {
+  try {
+    console.log('API Service: Removing family member or pet for user ID:', memberData.userId);
+    
+    // Use POST instead of DELETE since we need to send a body
+    const response = await fetch(`${API_URL}/auth/remove-family-member`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(memberData),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Family member removal failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Family member removal failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Family member removal error:", error);
+    throw error;
+  }
+};
+
 // Care Centers services
 export const fetchCareCenters = async () => {
   try {
@@ -201,6 +349,204 @@ export const deleteItem = async (id) => {
     return data.message;
   } catch (error) {
     console.error(`Error deleting item ${id}:`, error);
+    throw error;
+  }
+};
+
+// Admin: Update user profile
+export const adminUpdateUser = async (adminId, targetUserId, userData) => {
+  try {
+    console.log('API Service: Admin updating user profile for user ID:', targetUserId);
+    
+    const response = await fetch(`${API_URL}/auth/admin-update-user`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        adminId,
+        targetUserId,
+        userData
+      }),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Admin profile update failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Admin profile update failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Admin profile update error:", error);
+    throw error;
+  }
+};
+
+// Admin: Add family member or pet to any user
+export const adminAddFamilyMember = async (adminId, targetUserId, memberData) => {
+  try {
+    console.log('API Service: Admin adding family member for user ID:', targetUserId);
+    
+    const response = await fetch(`${API_URL}/auth/admin-add-family-member`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        adminId,
+        targetUserId,
+        memberData
+      }),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Admin add family member failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Admin add family member failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Admin add family member error:", error);
+    throw error;
+  }
+};
+
+// Admin: Remove family member or pet from any user
+export const adminRemoveFamilyMember = async (adminId, targetUserId, memberId, memberType) => {
+  try {
+    console.log('API Service: Admin removing family member for user ID:', targetUserId);
+    
+    const response = await fetch(`${API_URL}/auth/admin-remove-family-member`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        adminId,
+        targetUserId,
+        memberId,
+        memberType
+      }),
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Admin remove family member failed with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Admin remove family member failed with status: ${response.status}`);
+      }
+    }
+    
+    // Only try to parse JSON if response is OK
+    try {
+      const data = await response.json();
+      return data;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response:", jsonError);
+      throw new Error("Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Admin remove family member error:", error);
+    throw error;
+  }
+};
+
+// Fetch testimonials
+export const fetchTestimonials = async () => {
+  try {
+    console.log('API Service: Fetching testimonials from', `${API_URL}/testimonials`);
+    
+    const response = await fetch(`${API_URL}/testimonials`);
+    console.log('Testimonials API response status:', response.status);
+    
+    if (!response.ok) {
+      console.error('Response not OK:', response.status, response.statusText);
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message;
+      } catch (e) {
+        errorMessage = `Failed to fetch testimonials with status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    const data = await response.json();
+    console.log('Testimonials API response data:', data);
+    return data.data || [];
+  } catch (error) {
+    console.error("Fetch testimonials error:", error);
+    throw error;
+  }
+};
+
+// Submit a new testimonial
+export const submitTestimonial = async (testimonialData) => {
+  try {
+    console.log('API Service: Submitting testimonial to', `${API_URL}/testimonials`, testimonialData);
+    
+    const response = await fetch(`${API_URL}/testimonials`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(testimonialData),
+    });
+    
+    console.log('Testimonial submission response status:', response.status);
+    
+    if (!response.ok) {
+      console.error('Response not OK:', response.status, response.statusText);
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message;
+      } catch (_) {
+        errorMessage = `Failed to submit testimonial with status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    const data = await response.json();
+    console.log('Testimonial submission response data:', data);
+    return data.data;
+  } catch (error) {
+    console.error("Submit testimonial error:", error);
     throw error;
   }
 };

@@ -1,34 +1,252 @@
 {
   "users": [
     {
-      "id": 1,
-      "username": "john_doe",
-      "email": "john@example.com",
-      "password": "password123",
-      "firstName": "John",
-      "lastName": "Doe",
-      "phone": "555-123-4567",
-      "address": "123 Main St, Anytown, USA"
-    },
-    {
-      "id": 2,
-      "username": "jane_smith",
-      "email": "jane@example.com",
-      "password": "password123",
-      "firstName": "Jane",
-      "lastName": "Smith",
-      "phone": "555-987-6543",
-      "address": "456 Oak Ave, Someville, USA"
-    },
-    {
-      "id": 3,
+      "id": "b29ddc33-3161-46a7-b954-090fded45d12",
       "username": "chandu",
+      "email": "admin1@gmail.com",
+      "password": "123456",
+      "firstName": "Nandiki",
+      "lastName": "Chandrashekhar",
+      "phone": "07976895037",
+      "address": "btm layout , 14 cross",
+      "role": "admin",
+      "familyMembers": [
+        {
+          "id": "f9a12c45-d8e3-4b67-a98f-c8d7e910b234",
+          "name": "Raj Shekhar",
+          "age": "65",
+          "type": "elder"
+        },
+        {
+          "id": "a78b3c56-e9f0-4d12-b34c-5d6e7f8a9b0c",
+          "name": "Aarav",
+          "age": "10",
+          "type": "child"
+        }
+      ],
+      "pets": [
+        {
+          "id": "1d2e3f4a-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
+          "name": "Rocky",
+          "type": "Dog"
+        },
+        {
+          "id": "efd0bf67-8c55-4fa1-ab96-03459b31c952",
+          "name": "pet23",
+          "type": "bird"
+        }
+      ]
+    },
+    {
+      "id": "c38e4f12-9a7b-5d6c-8e9f-0a1b2c3d4e5f",
+      "username": "chandrashekhar",
       "email": "Nandiki_ChandrashekharReddika@comcast.com",
       "password": "123456",
       "firstName": "Nandiki",
       "lastName": "Chandrashekhar",
       "phone": "07976895037",
-      "address": "btm"
+      "address": "btm layout , 14 cross",
+      "role": "user",
+      "familyMembers": [
+        {
+          "id": "ec0c4485-a985-4dee-88fc-f0a6cbfe03bf",
+          "name": "child1",
+          "age": "2",
+          "type": "child"
+        },
+        {
+          "id": "3db9433a-23cb-444e-8248-04d8b5e88933",
+          "name": "Mother",
+          "age": "60",
+          "type": "elder"
+        }
+      ],
+      "pets": [
+        {
+          "id": "d394436f-9251-4709-ac91-77e838314bce",
+          "name": "pet2",
+          "type": "dog"
+        }
+      ]
+    },
+    {
+      "id": "f7e525a1-c38d-4e9a-8694-98a7286e6c1d",
+      "username": "testuser1",
+      "email": "testuser1@gmail.com",
+      "password": "123456",
+      "firstName": "John",
+      "lastName": "Smith",
+      "phone": "5551234567",
+      "address": "123 Main St, Apt 4B, New York, NY 10001",
+      "role": "user",
+      "familyMembers": [
+        {
+          "id": "a491b94d-8c7e-4a1d-9e5f-25a6c4b7d3e2",
+          "name": "Martha Smith",
+          "age": "72",
+          "type": "elder"
+        },
+        {
+          "id": "c612d39f-5e7a-42b1-8d93-7a4f6c8e5d2b",
+          "name": "Emma Smith",
+          "age": "5",
+          "type": "child"
+        },
+        {
+          "id": "e734f51g-7h8i-9j0k-1l2m-3n4o5p6q7r8s",
+          "name": "Liam Smith",
+          "age": "3",
+          "type": "child"
+        }
+      ],
+      "pets": [
+        {
+          "id": "b592c05e-6d7f-8e9g-0h1i-2j3k4l5m6n7o",
+          "name": "Buddy",
+          "type": "dog"
+        },
+        {
+          "id": "p8q9r0s1-t2u3-v4w5-x6y7-z8a9b0c1d2e3",
+          "name": "Whiskers",
+          "type": "cat"
+        }
+      ]
+    },
+    {
+      "id": "e6d5c4b3-a2f1-4e9d-8c7b-6a5f4e3d2c1b",
+      "username": "testuser2",
+      "email": "testuser2@gmail.com",
+      "password": "123456",
+      "firstName": "Sarah",
+      "lastName": "Johnson",
+      "phone": "5559876543",
+      "address": "456 Oak Avenue, Chicago, IL 60607",
+      "role": "user",
+      "familyMembers": [
+        {
+          "id": "f7e6d5c4-b3a2-f1e0-d9c8-b7a6f5e4d3c2",
+          "name": "Robert Johnson",
+          "age": "68",
+          "type": "elder"
+        }
+      ],
+      "pets": [
+        {
+          "id": "b1a0z9y8-x7w6-v5u4-t3s2-r1q0p9o8n7m6",
+          "name": "Rex",
+          "type": "dog"
+        },
+        {
+          "id": "l5k4j3h2-g1f0-e9d8-c7b6-a5f4e3d2c1b0",
+          "name": "Goldie",
+          "type": "fish"
+        },
+        {
+          "id": "z9y8x7w6-v5u4-t3s2-r1q0-p9o8n7m6l5k4",
+          "name": "Tweety",
+          "type": "bird"
+        }
+      ]
+    },
+    {
+      "id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+      "username": "testuser3",
+      "email": "testuser3@gmail.com",
+      "password": "123456",
+      "firstName": "Michael",
+      "lastName": "Williams",
+      "phone": "5552223333",
+      "address": "789 Pine Road, San Francisco, CA 94102",
+      "role": "user",
+      "familyMembers": [
+        {
+          "id": "q7r8s9t0-u1v2-w3x4-y5z6-a7b8c9d0e1f2",
+          "name": "James Williams",
+          "age": "10",
+          "type": "child"
+        },
+        {
+          "id": "g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8",
+          "name": "Emily Williams",
+          "age": "7",
+          "type": "child"
+        },
+        {
+          "id": "w9x0y1z2-a3b4-c5d6-e7f8-g9h0i1j2k3l4",
+          "name": "George Williams",
+          "age": "75",
+          "type": "elder"
+        }
+      ],
+      "pets": []
+    },
+    {
+      "id": "m5n6o7p8-q9r0-s1t2-u3v4-w5x6y7z8a9b0",
+      "username": "testuser4",
+      "email": "testuser4@gmail.com",
+      "password": "123456",
+      "firstName": "Jennifer",
+      "lastName": "Brown",
+      "phone": "5554445555",
+      "address": "321 Maple Street, Austin, TX 78701",
+      "role": "user",
+      "familyMembers": [],
+      "pets": [
+        {
+          "id": "c1d2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6",
+          "name": "Fluffy",
+          "type": "cat"
+        },
+        {
+          "id": "s7t8u9v0-w1x2-y3z4-a5b6-c7d8e9f0g1h2",
+          "name": "Spike",
+          "type": "hedgehog"
+        }
+      ]
+    },
+    {
+      "id": "i3j4k5l6-m7n8-o9p0-q1r2-s3t4u5v6w7x8",
+      "username": "testuser5",
+      "email": "testuser5@gmail.com",
+      "password": "123456",
+      "firstName": "David",
+      "lastName": "Miller",
+      "phone": "5556667777",
+      "address": "654 Birch Blvd, Seattle, WA 98101",
+      "role": "user",
+      "familyMembers": [
+        {
+          "id": "y9z0a1b2-c3d4-e5f6-g7h8-i9j0k1l2m3n4",
+          "name": "Olivia Miller",
+          "age": "4",
+          "type": "child"
+        },
+        {
+          "id": "o5p6q7r8-s9t0-u1v2-w3x4-y5z6a7b8c9d0",
+          "name": "Sophia Miller",
+          "age": "6",
+          "type": "child"
+        },
+        {
+          "id": "e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6",
+          "name": "Elaine Miller",
+          "age": "70",
+          "type": "elder"
+        },
+        {
+          "id": "u7v8w9x0-y1z2-a3b4-c5d6-e7f8g9h0i1j2",
+          "name": "Harold Miller",
+          "age": "73",
+          "type": "elder"
+        }
+      ],
+      "pets": [
+        {
+          "id": "k3l4m5n6-o7p8-q9r0-s1t2-u3v4w5x6y7z8",
+          "name": "Max",
+          "type": "dog"
+        }
+      ]
     }
   ]
 }

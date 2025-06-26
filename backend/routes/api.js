@@ -2,11 +2,22 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 // Load mock data
 const usersData = require('../data/users.json');
 const careCentersData = require('../data/careCenters.json');
 const servicesData = require('../data/services.json');
+let testimonialsData;
+
+// Try to load testimonials data
+try {
+  testimonialsData = require('../data/testimonials.json');
+  console.log('Testimonials data loaded successfully');
+} catch (error) {
+  console.error('Error loading testimonials data:', error);
+  testimonialsData = { testimonials: [] };
+}
 
 // Authentication routes
 router.post('/auth/register', (req, res) => {
@@ -40,14 +51,15 @@ router.post('/auth/register', (req, res) => {
     
     // Create new user (in a real app, you'd hash the password)
     const newUser = {
-      id: usersData.users.length + 1,
+      id: uuidv4(), // Generate a unique UUID instead of sequential IDs
       username,
       email,
       password, // Note: In a real app, this would be hashed
       firstName,
       lastName,
       phone,
-      address
+      address,
+      role: 'user' // Set default role as 'user'
     };    // Read the latest user data first to make sure we have the most up-to-date list
     let currentUsersData;
     try {
@@ -73,8 +85,10 @@ router.post('/auth/register', (req, res) => {
       Object.assign(usersData, currentUsersData);
       
       console.log('User registration successful. Users count now:', currentUsersData.users.length);
+      console.log('New user created with UUID:', newUser.id);
+      console.log('User role set to:', newUser.role);
       
-      // Return the new user (minus password)
+      // Return the user (minus password)
       const { password: _, ...userWithoutPassword } = newUser;
       res.status(201).json({
         success: true,
@@ -115,6 +129,18 @@ router.post('/auth/login', (req, res) => {
       });
     }
     
+    // Ensure the user has a role (for backward compatibility with existing users)
+    if (!user.role) {
+      user.role = 'user';
+      console.log('Adding default role to existing user:', user.id);
+      
+      // Update the user in the file with the new role
+      fs.writeFileSync(
+        path.join(__dirname, '../data/users.json'),
+        JSON.stringify(latestUserData, null, 2)
+      );
+    }
+    
     // Return user data (minus password)
     const { password: _, ...userWithoutPassword } = user;
     res.status(200).json({
@@ -127,6 +153,284 @@ router.post('/auth/login', (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error during login'
+    });
+  }
+});
+
+// Get all users (Admin only)
+router.get('/auth/all-users', (req, res) => {
+  try {
+    // This would typically include authentication and admin role validation
+    // For demo purposes, we'll just check a token or userId parameter
+    const { userId } = req.query;
+    
+    console.log('Admin request to get all users from user ID:', userId);
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find the requesting user
+    const requestingUser = latestUserData.users.find(user => user.id === userId);
+    
+    if (!requestingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Requesting user not found'
+      });
+    }
+    
+    // Check if the requesting user is an admin
+    if (requestingUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    
+    // Return all users (minus passwords)
+    const usersWithoutPasswords = latestUserData.users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: usersWithoutPasswords
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while retrieving all users'
+    });
+  }
+});
+
+// Update user profile
+router.put('/auth/update-profile', (req, res) => {
+  try {
+    console.log('Update profile API endpoint hit with data:', req.body);
+    const { id, username, email, firstName, lastName, phone, address } = req.body;
+    
+    console.log('Update profile API called for user ID:', id);
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find user index
+    const userIndex = latestUserData.users.findIndex(user => user.id === id);
+    
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Get the existing user to preserve any properties not being updated
+    const existingUser = latestUserData.users[userIndex];
+    
+    // Update user data (preserving password and other fields not in the request)
+    latestUserData.users[userIndex] = {
+      ...existingUser,
+      username: username || existingUser.username,
+      email: email || existingUser.email,
+      firstName: firstName || existingUser.firstName,
+      lastName: lastName || existingUser.lastName,
+      phone: phone || existingUser.phone,
+      address: address || existingUser.address,
+    };
+    
+    // Save updated user data
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    console.log('User profile updated successfully');
+    
+    // Return the updated user (minus password)
+    const { password: _, ...userWithoutPassword } = latestUserData.users[userIndex];
+    
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: userWithoutPassword
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during profile update'
+    });
+  }
+});
+
+// Add family member or pet
+router.post('/auth/add-family-member', (req, res) => {
+  try {
+    console.log('Adding family member or pet with data:', req.body);
+    const { userId, memberType, name, age, petType } = req.body;
+    
+    if (!userId || !memberType || !name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find user index
+    const userIndex = latestUserData.users.findIndex(user => user.id === userId);
+    
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Get the existing user to update
+    const existingUser = latestUserData.users[userIndex];
+    
+    if (memberType === 'elder' || memberType === 'child') {
+      // Handle family member
+      if (!existingUser.familyMembers) {
+        existingUser.familyMembers = [];
+      }
+      
+      existingUser.familyMembers.push({
+        id: uuidv4(),
+        name,
+        age,
+        type: memberType
+      });
+    } else if (memberType === 'pet') {
+      // Handle pet
+      if (!existingUser.pets) {
+        existingUser.pets = [];
+      }
+      
+      existingUser.pets.push({
+        id: uuidv4(),
+        name,
+        type: petType
+      });
+    }
+    
+    // Save updated user data
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    console.log('Family member or pet added successfully');
+    
+    // Return the updated user (minus password)
+    const { password: _, ...userWithoutPassword } = existingUser;
+    
+    res.status(200).json({
+      success: true,
+      message: 'Family member or pet added successfully',
+      data: userWithoutPassword
+    });
+  } catch (error) {
+    console.error('Add family member error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while adding family member or pet'
+    });
+  }
+});
+
+// Remove family member or pet
+router.post('/auth/remove-family-member', (req, res) => {
+  try {
+    console.log('Remove family member or pet with data:', req.body);
+    const { userId, memberId, memberType } = req.body;
+    
+    if (!userId || !memberId || !memberType) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find user index
+    const userIndex = latestUserData.users.findIndex(user => user.id === userId);
+    
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Get the existing user to update
+    const existingUser = latestUserData.users[userIndex];
+    
+    if (memberType === 'familyMember') {
+      // Remove family member
+      if (existingUser.familyMembers && existingUser.familyMembers.length > 0) {
+        existingUser.familyMembers = existingUser.familyMembers.filter(member => member.id !== memberId);
+      }
+    } else if (memberType === 'pet') {
+      // Remove pet
+      if (existingUser.pets && existingUser.pets.length > 0) {
+        existingUser.pets = existingUser.pets.filter(pet => pet.id !== memberId);
+      }
+    }
+    
+    // Save updated user data
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    console.log('Family member or pet removed successfully');
+    
+    // Return the updated user (minus password)
+    const { password: _, ...userWithoutPassword } = existingUser;
+    
+    res.status(200).json({
+      success: true,
+      message: 'Family member or pet removed successfully',
+      data: userWithoutPassword
+    });
+  } catch (error) {
+    console.error('Remove family member error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while removing family member or pet'
     });
   }
 });
@@ -288,6 +592,479 @@ router.delete('/items/:id', (req, res) => {
     success: true, 
     message: `Item ${id} deleted successfully` 
   });
+});
+
+// Admin endpoint to update a user's profile
+router.put('/auth/admin-update-user', (req, res) => {
+  try {
+    const { adminId, targetUserId, userData } = req.body;
+    
+    console.log('Admin update user API called by admin ID:', adminId, 'for target user ID:', targetUserId);
+    
+    if (!adminId || !targetUserId || !userData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin ID, target user ID, and user data are required'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find the admin user
+    const adminUser = latestUserData.users.find(user => user.id === adminId);
+    
+    // Check if the admin exists and has admin role
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found'
+      });
+    }
+    
+    if (adminUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    
+    // Find target user index
+    const targetUserIndex = latestUserData.users.findIndex(user => user.id === targetUserId);
+    
+    if (targetUserIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Target user not found'
+      });
+    }
+    
+    // Get the existing user to preserve properties not being updated
+    const existingUser = latestUserData.users[targetUserIndex];
+    
+    // Update user data (preserving email and other fields not in the request)
+    // Admin can update: username, password, firstName, lastName, phone, address, and role
+    // Email is preserved and cannot be changed by admin
+    latestUserData.users[targetUserIndex] = {
+      ...existingUser,
+      username: userData.username || existingUser.username,
+      // Email cannot be changed by admin
+      password: userData.password || existingUser.password, // Allow password change
+      firstName: userData.firstName || existingUser.firstName,
+      lastName: userData.lastName || existingUser.lastName,
+      phone: userData.phone || existingUser.phone,
+      address: userData.address || existingUser.address,
+      role: userData.role || existingUser.role
+    };
+    
+    // Save updated user data
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    console.log('User profile updated by admin successfully');
+    
+    // Return all users (minus passwords) for admin dashboard update
+    const usersWithoutPasswords = latestUserData.users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: 'User profile updated successfully',
+      data: usersWithoutPasswords
+    });
+    
+  } catch (error) {
+    console.error('Error updating user profile by admin:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while updating user profile'
+    });
+  }
+});
+
+// Admin endpoint to add family member or pet to any user
+router.post('/auth/admin-add-family-member', (req, res) => {
+  try {
+    const { adminId, targetUserId, memberData } = req.body;
+    
+    console.log('Admin add family member API called by admin ID:', adminId, 'for target user ID:', targetUserId);
+    
+    if (!adminId || !targetUserId || !memberData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin ID, target user ID, and member data are required'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find the admin user
+    const adminUser = latestUserData.users.find(user => user.id === adminId);
+    
+    // Check if the admin exists and has admin role
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found'
+      });
+    }
+    
+    if (adminUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    
+    // Find target user
+    const targetUserIndex = latestUserData.users.findIndex(user => user.id === targetUserId);
+    
+    if (targetUserIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Target user not found'
+      });
+    }
+    
+    const targetUser = latestUserData.users[targetUserIndex];
+    
+    if (memberData.memberType === 'elder' || memberData.memberType === 'child') {
+      // Add family member
+      if (!targetUser.familyMembers) {
+        targetUser.familyMembers = [];
+      }
+      
+      const newMember = {
+        id: uuidv4(),
+        name: memberData.name,
+        age: memberData.age,
+        type: memberData.memberType
+      };
+      
+      targetUser.familyMembers.push(newMember);
+      console.log(`Added ${memberData.memberType} to user ${targetUserId}`);
+      
+    } else if (memberData.memberType === 'pet') {
+      // Add pet
+      if (!targetUser.pets) {
+        targetUser.pets = [];
+      }
+      
+      const newPet = {
+        id: uuidv4(),
+        name: memberData.name,
+        type: memberData.petType
+      };
+      
+      targetUser.pets.push(newPet);
+      console.log(`Added pet to user ${targetUserId}`);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid member type. Must be "elder", "child", or "pet".'
+      });
+    }
+    
+    // Save updated data
+    latestUserData.users[targetUserIndex] = targetUser;
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    // Return all users (minus passwords) for admin dashboard update
+    const usersWithoutPasswords = latestUserData.users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Family member or pet added successfully',
+      data: usersWithoutPasswords
+    });
+    
+  } catch (error) {
+    console.error('Error adding family member by admin:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while adding family member'
+    });
+  }
+});
+
+// Admin endpoint to remove family member or pet from any user
+router.post('/auth/admin-remove-family-member', (req, res) => {
+  try {
+    const { adminId, targetUserId, memberId, memberType } = req.body;
+    
+    console.log('Admin remove family member API called by admin ID:', adminId, 'for target user ID:', targetUserId);
+    
+    if (!adminId || !targetUserId || !memberId || !memberType) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin ID, target user ID, member ID, and member type are required'
+      });
+    }
+    
+    // Read the latest user data from file
+    const latestUserData = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+    );
+    
+    // Find the admin user
+    const adminUser = latestUserData.users.find(user => user.id === adminId);
+    
+    // Check if the admin exists and has admin role
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found'
+      });
+    }
+    
+    if (adminUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin privileges required.'
+      });
+    }
+    
+    // Find target user
+    const targetUserIndex = latestUserData.users.findIndex(user => user.id === targetUserId);
+    
+    if (targetUserIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Target user not found'
+      });
+    }
+    
+    const targetUser = latestUserData.users[targetUserIndex];
+    
+    // Remove the family member or pet
+    if (memberType === 'familyMember') {
+      // Check if user has family members array
+      if (!targetUser.familyMembers || targetUser.familyMembers.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User has no family members'
+        });
+      }
+      
+      // Find the index of the family member to remove
+      const memberIndex = targetUser.familyMembers.findIndex(member => member.id === memberId);
+      
+      if (memberIndex === -1) {
+        return res.status(404).json({
+          success: false,
+          message: 'Family member not found'
+        });
+      }
+      
+      // Remove the family member
+      targetUser.familyMembers.splice(memberIndex, 1);
+      console.log(`Removed family member from user ${targetUserId}`);
+      
+    } else if (memberType === 'pet') {
+      // Check if user has pets array
+      if (!targetUser.pets || targetUser.pets.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User has no pets'
+        });
+      }
+      
+      // Find the index of the pet to remove
+      const petIndex = targetUser.pets.findIndex(pet => pet.id === memberId);
+      
+      if (petIndex === -1) {
+        return res.status(404).json({
+          success: false,
+          message: 'Pet not found'
+        });
+      }
+      
+      // Remove the pet
+      targetUser.pets.splice(petIndex, 1);
+      console.log(`Removed pet from user ${targetUserId}`);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid member type. Must be "familyMember" or "pet".'
+      });
+    }
+    
+    // Save updated data
+    latestUserData.users[targetUserIndex] = targetUser;
+    fs.writeFileSync(
+      path.join(__dirname, '../data/users.json'),
+      JSON.stringify(latestUserData, null, 2)
+    );
+    
+    // Update the in-memory data
+    Object.assign(usersData, latestUserData);
+    
+    // Return all users (minus passwords) for admin dashboard update
+    const usersWithoutPasswords = latestUserData.users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Family member or pet removed successfully',
+      data: usersWithoutPasswords
+    });
+    
+  } catch (error) {
+    console.error('Error removing family member by admin:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while removing family member'
+    });
+  }
+});
+
+// Testimonials route - GET all testimonials
+router.get('/testimonials', (req, res) => {
+  try {
+    console.log('GET /testimonials endpoint called');
+    
+    // Try to read the file directly to make sure we have the latest data
+    let testimonials;
+    try {
+      testimonials = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/testimonials.json'), 'utf8')
+      ).testimonials || [];
+      console.log(`Read ${testimonials.length} testimonials from file`);
+    } catch (readErr) {
+      console.error('Error reading testimonials.json file:', readErr);
+      testimonials = testimonialsData.testimonials || [];
+      console.log(`Using in-memory data with ${testimonials.length} testimonials`);
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Testimonials fetched successfully',
+      data: testimonials
+    });
+  } catch (error) {
+    console.error('Error fetching testimonials:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching testimonials'
+    });
+  }
+});
+
+// Add new testimonial - POST
+router.post('/testimonials', (req, res) => {
+  try {
+    console.log('POST /testimonials endpoint called with body:', req.body);
+    
+    const { name, role, content, rating } = req.body;
+    
+    // Validate required fields
+    if (!name || !role || !content) {
+      console.log('Validation failed:', { name, role, content });
+      return res.status(400).json({
+        success: false,
+        message: 'Name, role, and content are required fields'
+      });
+    }
+
+    console.log('Reading testimonials.json file');
+    // Read the latest testimonials data from file
+    let currentTestimonialsData;
+    try {
+      currentTestimonialsData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/testimonials.json'), 'utf8')
+      );
+      console.log(`Read ${currentTestimonialsData.testimonials.length} testimonials from file`);
+    } catch (readErr) {
+      console.error('Error reading testimonials.json:', readErr);
+      currentTestimonialsData = { testimonials: [] };
+      console.log('Created empty testimonials array');
+    }
+
+    // Generate a unique ID (format: t + number)
+    let newId;
+    if (currentTestimonialsData.testimonials.length > 0) {
+      const testimonialIds = currentTestimonialsData.testimonials.map(t => 
+        parseInt(t.id.replace('t', '')) || 0
+      );
+      const maxId = Math.max(...testimonialIds);
+      newId = `t${maxId + 1}`;
+    } else {
+      newId = 't1';
+    }
+    
+    console.log('Generated new testimonial ID:', newId);
+    
+    // Create new testimonial object
+    const newTestimonial = {
+      id: newId,
+      name,
+      role,
+      content,
+      rating: rating || 5,
+      image: `/images/testimonials/default.jpg` // Default image
+    };
+
+    // Add to testimonials array
+    currentTestimonialsData.testimonials.push(newTestimonial);
+
+    const testimonialFilePath = path.join(__dirname, '../data/testimonials.json');
+    console.log('Writing testimonials to:', testimonialFilePath);
+    
+    try {
+      // Save updated testimonials back to file
+      fs.writeFileSync(
+        testimonialFilePath,
+        JSON.stringify(currentTestimonialsData, null, 2)
+      );
+      console.log('Testimonials file updated successfully');
+
+      // Update the in-memory data
+      testimonialsData = currentTestimonialsData;
+
+      // Return success response with the new testimonial
+      res.status(201).json({
+        success: true,
+        message: 'Testimonial added successfully',
+        data: newTestimonial
+      });
+    } catch (writeErr) {
+      console.error('Error writing testimonials to file:', writeErr);
+      res.status(500).json({
+        success: false,
+        message: 'Server error while saving testimonial'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error adding testimonial:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while adding testimonial'
+    });
+  }
 });
 
 module.exports = router;

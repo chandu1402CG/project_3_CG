@@ -25,6 +25,11 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
 });
 
+// Add direct handler for /api
+app.get('/api', (req, res) => {
+  res.json({ message: 'Welcome to the HHCC API' });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

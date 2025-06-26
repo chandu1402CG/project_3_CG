@@ -51,6 +51,9 @@ const LoginPage = ({ setIsLoggedIn }) => {
         setIsLoggedIn(true);
       }
       
+      // Trigger a custom event for components that need to react to login changes
+      window.dispatchEvent(new Event('userLoggedIn'));
+      
       // Redirect to home page
       navigate('/', { 
         state: { 
