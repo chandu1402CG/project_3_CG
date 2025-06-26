@@ -56,6 +56,13 @@ const ProfilePage = () => {
   const [adminFamilyMember, setAdminFamilyMember] = useState({ name: '', age: '', type: '' });
   const [adminTargetUserId, setAdminTargetUserId] = useState(null);
   
+  // Snackbar state for notifications
+  const [snackbarState, setSnackbarState] = useState({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
+  
   // Check backend server status
   useEffect(() => {
     const checkServerStatus = async () => {
@@ -90,6 +97,37 @@ const ProfilePage = () => {
       setAdminLoading(false);
     }
   }, [backendAvailable]);
+  
+  // Handle user deletion by admin
+  const handleDeleteUser = async (userIdToDelete) => {
+    if (!user?.id || !backendAvailable || !userIdToDelete) return;
+    
+    setAdminLoading(true);
+    
+    try {
+      const { deleteUser } = await import('../services/api');
+      await deleteUser(userIdToDelete, user.id);
+      
+      // Refresh the list of users after deletion
+      await fetchAdminData(user.id);
+      
+      // Show success message
+      setSnackbarState({
+        open: true,
+        message: 'User deleted successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setSnackbarState({
+        open: true,
+        message: error.message || 'Failed to delete user',
+        severity: 'error'
+      });
+    } finally {
+      setAdminLoading(false);
+    }
+  };
   
   useEffect(() => {
     // Get user data from localStorage
@@ -478,6 +516,12 @@ const ProfilePage = () => {
     }
   };
   
+  // Handle closing the notification snackbar
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarState(prev => ({ ...prev, open: false }));
+  };
+
   if (loading) {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
@@ -513,6 +557,23 @@ const ProfilePage = () => {
           Backend server appears to be offline. Profile changes will be saved locally only.
         </Alert>
       )}
+      
+      {/* Notification Snackbar */}
+      <Snackbar
+        open={snackbarState.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleSnackbarClose} 
+          severity={snackbarState.severity} 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarState.message}
+        </Alert>
+      </Snackbar>
       
       <Snackbar
         open={editSuccess}
@@ -578,6 +639,7 @@ const ProfilePage = () => {
           openAdminFamilyDialog={openAdminFamilyDialog}
           removeAdminFamilyMember={removeAdminFamilyMember}
           fetchAdminData={fetchAdminData}
+          deleteUserHandler={handleDeleteUser}
         />
       )}
       
@@ -647,6 +709,23 @@ const ProfilePage = () => {
         loading={adminLoading}
         isAdmin={true}
       />
+      
+      {/* Notification Snackbar for user deletion */}
+      <Snackbar
+        open={snackbarState.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarState(prev => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbarState(prev => ({ ...prev, open: false }))} 
+          severity={snackbarState.severity} 
+          variant="filled" 
+          sx={{ width: '100%' }}
+        >
+          {snackbarState.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

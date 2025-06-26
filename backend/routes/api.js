@@ -941,6 +941,103 @@ router.post('/auth/admin-remove-family-member', (req, res) => {
   }
 });
 
+// Delete a user (Admin only)
+router.delete('/auth/delete-user/:userId', (req, res) => {
+  try {
+    console.log('DELETE user API called for userId:', req.params.userId);
+    
+    // Get the admin user ID from the query params for authorization
+    const { adminId } = req.query;
+    
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Admin authorization required'
+      });
+    }
+    
+    // Find the admin user to check permissions
+    const adminUser = usersData.users.find(user => user.id === adminId);
+    if (!adminUser || adminUser.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: Admin privileges required'
+      });
+    }
+    
+    const userIdToDelete = req.params.userId;
+    
+    // Read the latest user data first
+    let currentUsersData;
+    try {
+      currentUsersData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+      );
+    } catch (readErr) {
+      console.error('Error reading users.json:', readErr);
+      return res.status(500).json({
+        success: false,
+        message: 'Error reading user data'
+      });
+    }
+    
+    // Find the user to be deleted
+    const userIndex = currentUsersData.users.findIndex(user => user.id === userIdToDelete);
+    
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Don't allow deleting the last admin
+    const userToDelete = currentUsersData.users[userIndex];
+    if (userToDelete.role === 'admin') {
+      const adminCount = currentUsersData.users.filter(user => user.role === 'admin').length;
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot delete the last admin user'
+        });
+      }
+    }
+    
+    // Remove the user from the array
+    currentUsersData.users.splice(userIndex, 1);
+    
+    // Save the updated users array back to file
+    try {
+      fs.writeFileSync(
+        path.join(__dirname, '../data/users.json'),
+        JSON.stringify(currentUsersData, null, 2)
+      );
+      
+      // Update the in-memory cache with the new data
+      Object.assign(usersData, currentUsersData);
+      
+      console.log('User deleted successfully:', userIdToDelete);
+      
+      res.status(200).json({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    } catch (writeErr) {
+      console.error('Error writing to users.json:', writeErr);
+      res.status(500).json({
+        success: false,
+        message: 'Error saving user data'
+      });
+    }
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during user deletion'
+    });
+  }
+});
+
 // Testimonials route - GET all testimonials
 router.get('/testimonials', (req, res) => {
   try {

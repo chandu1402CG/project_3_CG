@@ -550,3 +550,36 @@ export const submitTestimonial = async (testimonialData) => {
     throw error;
   }
 };
+
+// Delete a user (Admin only)
+export const deleteUser = async (userId, adminUserId) => {
+  try {
+    console.log('API Service: Admin deleting user:', userId);
+    
+    const response = await fetch(`${API_URL}/auth/delete-user/${userId}?adminId=${adminUserId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    // Check if response is OK before parsing
+    if (!response.ok) {
+      // Try to parse error response as JSON, but handle if it's not
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to delete user with status: ${response.status}`);
+      } catch (error) {
+        // If can't parse as JSON, return status code
+        console.error("Error parsing error response:", error);
+        throw new Error(`Failed to delete user with status: ${response.status}`);
+      }
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Delete user error:", error);
+    throw error;
+  }
+};

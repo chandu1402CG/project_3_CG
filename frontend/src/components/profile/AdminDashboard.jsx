@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -16,7 +16,12 @@ import {
   IconButton,
   Chip,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonIcon from '@mui/icons-material/Person';
@@ -25,6 +30,7 @@ import ChildCareIcon from '@mui/icons-material/ChildCare';
 import PetsIcon from '@mui/icons-material/Pets';
 import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { motion } from 'framer-motion';
 import ProfileCard from './ProfileCard';
 import CardHeader from './CardHeader';
@@ -39,8 +45,38 @@ const AdminDashboard = ({
   startEditingUser,
   openAdminFamilyDialog, 
   removeAdminFamilyMember,
-  fetchAdminData
+  fetchAdminData,
+  deleteUserHandler
 }) => {
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    userId: null,
+    userName: ''
+  });
+
+  const openDeleteDialog = (userId, firstName, lastName, e) => {
+    if (e) e.stopPropagation(); // Prevent accordion from toggling
+    setDeleteDialog({
+      open: true,
+      userId,
+      userName: `${firstName} ${lastName}`
+    });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({
+      open: false,
+      userId: null,
+      userName: ''
+    });
+  };
+
+  const handleUserDeletion = async () => {
+    if (!deleteDialog.userId) return;
+    
+    await deleteUserHandler(deleteDialog.userId);
+    closeDeleteDialog();
+  };
   return (
     <Box
       component={motion.div}
@@ -114,18 +150,32 @@ const AdminDashboard = ({
                           {userData.email} • {userData.username}
                         </Typography>
                       </Box>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="primary"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent accordion from toggling
-                          startEditingUser(userData);
-                        }}
-                        sx={{ mr: 2, minWidth: '60px' }}
-                      >
-                        Edit
-                      </Button>
+                      <Box sx={{ display: 'flex' }}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent accordion from toggling
+                            startEditingUser(userData);
+                          }}
+                          sx={{ mr: 1, minWidth: '60px' }}
+                        >
+                          Edit
+                        </Button>
+                        {userData.id !== user.id && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<PersonRemoveIcon />}
+                            onClick={(e) => openDeleteDialog(userData.id, userData.firstName, userData.lastName, e)}
+                            sx={{ minWidth: '60px' }}
+                          >
+                            Delete
+                          </Button>
+                        )}
+                      </Box>
                       {userData.role === 'admin' && (
                         <Chip 
                           label="Admin" 
@@ -307,6 +357,38 @@ const AdminDashboard = ({
           )}
         </CardContent>
       </ProfileCard>
+      
+      {/* Delete User Confirmation Dialog */}
+      <Dialog
+        open={deleteDialog.open}
+        onClose={closeDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Confirm User Deletion"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete user <strong>{deleteDialog.userName}</strong>? 
+            This action cannot be undone, and all associated data for this user will be permanently removed.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleUserDeletion} 
+            color="error" 
+            variant="contained" 
+            startIcon={<DeleteIcon />}
+            autoFocus
+          >
+            Delete User
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
