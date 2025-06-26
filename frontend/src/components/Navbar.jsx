@@ -28,6 +28,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import PaymentIcon from "@mui/icons-material/Payment";
 
 // Helper function to get user initials
 const getUserInitials = (name) => {
@@ -164,6 +165,18 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn }) => {
               <MedicalServicesIcon />
             </ListItemIcon>
             <ListItemText primary="Services" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            component={RouterLink}
+            to="/payment"
+            sx={{ textAlign: "center" }}
+          >
+            <ListItemIcon sx={{ minWidth: "40px" }}>
+              <PaymentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Payment" />
           </ListItemButton>
         </ListItem>
 
@@ -326,6 +339,14 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn }) => {
               sx={{ mx: 1 }}
             >
               Services
+            </Button>
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/payment"
+              sx={{ mx: 1 }}
+            >
+              Payment
             </Button>
             {isLoggedIn && (
               <>
