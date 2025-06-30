@@ -38,7 +38,6 @@ const HomePage = () => {
       <FeaturesSection />
       <ServicesSection />
       <TestimonialsSection />
-      <CTASection isLoggedIn={isLoggedIn} />
     </Box>
   );
 };

@@ -583,3 +583,140 @@ export const deleteUser = async (userId, adminUserId) => {
     throw error;
   }
 };
+
+// Forgot password - Step 1: Request password reset
+export const forgotPassword = async (email) => {
+  try {
+    console.log('API Service: Requesting password reset for email:', email);
+    
+    const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Password reset request failed with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Password reset request error:", error);
+    throw error;
+  }
+};
+
+// Forgot password - Step 2: Verify reset code (math puzzle answer)
+export const verifyResetCode = async (email, answer, resetToken) => {
+  try {
+    console.log('API Service: Verifying reset code for email:', email);
+    
+    const response = await fetch(`${API_URL}/auth/verify-reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, answer, resetToken }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Reset verification failed with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Reset verification error:", error);
+    throw error;
+  }
+};
+
+// Forgot password - Step 3: Reset password with new password
+export const resetPassword = async (email, newPassword, resetToken) => {
+  try {
+    console.log('API Service: Resetting password for email:', email);
+    
+    const response = await fetch(`${API_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, newPassword, resetToken }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Password reset failed with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Password reset error:", error);
+    throw error;
+  }
+};
+
+// Schedule services
+// Create a new schedule
+export const createSchedule = async (scheduleData) => {
+  try {
+    console.log('API Service: Creating new schedule for user:', scheduleData.userId);
+    
+    const response = await fetch(`${API_URL}/schedules`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(scheduleData),
+    });
+    
+    if (!response.ok) {
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message;
+      } catch {
+        errorMessage = `Failed to create schedule with status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Create schedule error:", error);
+    throw error;
+  }
+};
+
+// Fetch user's schedules
+export const fetchUserSchedules = async (userId) => {
+  try {
+    console.log('API Service: Fetching schedules for user:', userId);
+    
+    const response = await fetch(`${API_URL}/schedules/${userId}`);
+    
+    if (!response.ok) {
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message;
+      } catch {
+        errorMessage = `Failed to fetch schedules with status: ${response.status}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Fetch schedules error:", error);
+    throw error;
+  }
+};

@@ -19,6 +19,18 @@ try {
   testimonialsData = { testimonials: [] };
 }
 
+// Load schedules data
+let schedulesData;
+try {
+  schedulesData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '../data/schedules.json'), 'utf8')
+  );
+  console.log('Schedules data loaded successfully');
+} catch (error) {
+  console.error('Error loading schedules data:', error);
+  schedulesData = [];
+}
+
 // Authentication routes
 router.post('/auth/register', (req, res) => {
   console.log('Register API called with data:', {
@@ -1160,6 +1172,336 @@ router.post('/testimonials', (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error while adding testimonial'
+    });
+  }
+});
+
+// Password reset tokens storage (in-memory - would be in a database in production)
+const resetTokens = {};
+
+// Forgot Password - Step 1: Request password reset
+router.post('/auth/forgot-password', (req, res) => {
+  try {
+    console.log('POST /auth/forgot-password endpoint called');
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+    
+    // Check if user exists
+    const user = usersData.users.find(user => user.email === email);
+    if (!user) {
+      // For security reasons, don't reveal if user exists or not
+      return res.status(200).json({
+        success: true,
+        message: 'If your email is registered, you will receive a reset link shortly'
+      });
+    }
+    
+    // Generate a reset token (UUID)
+    const resetToken = uuidv4();
+    
+    // Store token with user information
+    resetTokens[resetToken] = {
+      userId: user.id,
+      email: user.email,
+      expires: Date.now() + (60 * 60 * 1000) // Token valid for 1 hour
+    };
+    
+    console.log(`Reset token generated for email: ${email} - Token: ${resetToken}`);
+    console.log('Reset tokens:', resetTokens);
+    
+    // In a real application, send email with reset link
+    // For this demo, we'll just return the token directly
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset link sent successfully',
+      resetToken: resetToken // This would normally be sent via email, not in the response
+    });
+    
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during password reset request'
+    });
+  }
+});
+
+// Forgot Password - Step 2: Verify reset code (math puzzle answer)
+router.post('/auth/verify-reset', (req, res) => {
+  try {
+    console.log('POST /auth/verify-reset endpoint called');
+    const { email, answer, resetToken } = req.body;
+    
+    // Check if required data is provided
+    if (!email || answer === undefined || !resetToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, answer, and reset token are required'
+      });
+    }
+    
+    // Check if token exists and is valid
+    const tokenData = resetTokens[resetToken];
+    if (!tokenData || tokenData.email !== email || tokenData.expires < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+    
+    // In a real application, we would verify the answer against what was sent
+    // Here we'll just check if an answer was provided (the frontend does the verification)
+    
+    console.log(`Reset token verified for email: ${email}`);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Verification successful'
+    });
+    
+  } catch (error) {
+    console.error('Reset verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during reset verification'
+    });
+  }
+});
+
+// Forgot Password - Step 3: Reset password with new password
+router.post('/auth/reset-password', (req, res) => {
+  try {
+    console.log('POST /auth/reset-password endpoint called');
+    const { email, newPassword, resetToken } = req.body;
+    
+    // Check if required data is provided
+    if (!email || !newPassword || !resetToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, new password, and reset token are required'
+      });
+    }
+    
+    // Check if token exists and is valid
+    const tokenData = resetTokens[resetToken];
+    if (!tokenData || tokenData.email !== email || tokenData.expires < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+    
+    // Read the latest user data
+    let currentUsersData;
+    try {
+      currentUsersData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/users.json'), 'utf8')
+      );
+    } catch (readErr) {
+      console.error('Error reading users.json:', readErr);
+      return res.status(500).json({
+        success: false,
+        message: 'Error reading user data'
+      });
+    }
+    
+    // Find the user and update password
+    const userIndex = currentUsersData.users.findIndex(user => user.email === email);
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Update the password
+    currentUsersData.users[userIndex].password = newPassword; // In production, this would be hashed
+    
+    // Save the updated user data
+    try {
+      fs.writeFileSync(
+        path.join(__dirname, '../data/users.json'),
+        JSON.stringify(currentUsersData, null, 2)
+      );
+      
+      // Update the in-memory cache
+      Object.assign(usersData, currentUsersData);
+      
+      // Remove the used token
+      delete resetTokens[resetToken];
+      
+      console.log(`Password reset successful for email: ${email}`);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Password reset successfully'
+      });
+      
+    } catch (writeErr) {
+      console.error('Error writing to users.json:', writeErr);
+      return res.status(500).json({
+        success: false,
+        message: 'Error saving user data'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during password reset'
+    });
+  }
+});
+
+// Schedules Routes
+// Get all schedules for a user
+router.get('/schedules/:userId', (req, res) => {
+  try {
+    console.log('GET /schedules/:userId endpoint called');
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required'
+      });
+    }
+    
+    // Read the latest schedules data
+    let currentSchedulesData;
+    try {
+      currentSchedulesData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/schedules.json'), 'utf8')
+      );
+    } catch (readErr) {
+      console.error('Error reading schedules.json:', readErr);
+      currentSchedulesData = [];
+    }
+    
+    // Filter schedules by user ID
+    const userSchedules = currentSchedulesData.filter(schedule => schedule.userId === userId);
+    
+    // Sort by date (newest first)
+    userSchedules.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    res.status(200).json({
+      success: true,
+      message: 'Schedules fetched successfully',
+      data: userSchedules
+    });
+    
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching schedules'
+    });
+  }
+});
+
+// Create a new schedule
+router.post('/schedules', (req, res) => {
+  try {
+    console.log('POST /schedules endpoint called');
+    
+    const { 
+      userId, 
+      memberId, 
+      memberName,
+      memberType, 
+      date, 
+      dropOffTime, 
+      pickupTime, 
+      notes, 
+      programType 
+    } = req.body;
+    
+    // Validate required fields
+    if (!userId || !memberId || !memberName || !memberType || !date || !dropOffTime || !pickupTime || !programType) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Check if user exists
+    const user = usersData.users.find(user => user.id === userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Read the latest schedules data
+    let currentSchedulesData;
+    try {
+      currentSchedulesData = JSON.parse(
+        fs.readFileSync(path.join(__dirname, '../data/schedules.json'), 'utf8')
+      );
+    } catch (readErr) {
+      console.error('Error reading schedules.json:', readErr);
+      currentSchedulesData = [];
+    }
+    
+    // Generate a unique ID
+    const newId = `sched_${Date.now()}`;
+    
+    // Create new schedule
+    const newSchedule = {
+      id: newId,
+      userId,
+      memberId,
+      memberName,
+      memberType,
+      date,
+      dropOffTime,
+      pickupTime,
+      notes,
+      programType,
+      createdAt: new Date().toISOString()
+    };
+    
+    // Add to schedules array
+    currentSchedulesData.push(newSchedule);
+    
+    // Save updated schedules back to file
+    try {
+      fs.writeFileSync(
+        path.join(__dirname, '../data/schedules.json'),
+        JSON.stringify(currentSchedulesData, null, 2)
+      );
+      
+      // Update in-memory data
+      schedulesData = currentSchedulesData;
+      
+      res.status(201).json({
+        success: true,
+        message: 'Schedule created successfully',
+        data: newSchedule
+      });
+      
+    } catch (writeErr) {
+      console.error('Error writing schedules to file:', writeErr);
+      res.status(500).json({
+        success: false,
+        message: 'Server error while saving schedule'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error creating schedule:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while creating schedule'
     });
   }
 });

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "sched_1",
+    "userId": "001",
+    "memberId": "fam_001",
+    "memberName": "Jane Smith",
+    "memberType": "family",
+    "date": "2025-07-02T00:00:00.000Z",
+    "dropOffTime": "2025-07-02T08:00:00.000Z",
+    "pickupTime": "2025-07-02T17:00:00.000Z",
+    "notes": "Allergic to peanuts",
+    "programType": "regular",
+    "createdAt": "2025-06-30T12:30:00.000Z"
+  }
+]

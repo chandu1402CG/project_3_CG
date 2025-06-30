@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Grid, Button, CircularProgress, Alert, Fade } from '@mui/material';
+import { Box, Container, Typography, Button, CircularProgress, Alert, Fade, IconButton, useTheme, useMediaQuery } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import ServiceCard from '../ServiceCard';
 import { fetchServices } from '../../services/api';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import SwipeableViews from 'react-swipeable-views';
+import { autoPlay } from 'react-swipeable-views-utils';
+
+// Autoplay wrapper for SwipeableViews
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const ServicesSection = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [activeStep, setActiveStep] = useState(0);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -109,25 +119,107 @@ const ServicesSection = () => {
             {error}
           </Alert>
         ) : (
-          <Fade in={true} timeout={2500}>
-            <Box>
-              <Grid container spacing={4}>
-                {services.slice(0, 3).map((service, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={service.id}>
-                    <Fade in={true} timeout={1000 + (index * 500)}>
-                      <Box sx={{ height: '100%' }}>
-                        <ServiceCard service={service} />
-                      </Box>
-                    </Fade>
-                  </Grid>
-                ))}
-              </Grid>
+          <Box sx={{ 
+            position: 'relative', 
+            mt: 8,
+            maxWidth: '900px',
+            mx: 'auto'
+          }}>
+            {/* Carousel Navigation Buttons */}
+            {services.length > 0 && (
+              <IconButton 
+                onClick={() => setActiveStep((prevActiveStep) => 
+                  (prevActiveStep - 1 + services.length) % services.length
+                )}
+                sx={{
+                  position: 'absolute',
+                  left: { xs: -16, md: -60 },
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  bgcolor: 'background.paper',
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
+                  zIndex: 2,
+                  '&:hover': {
+                    bgcolor: 'background.paper',
+                  }
+                }}
+                size={isMobile ? "small" : "medium"}
+              >
+                <ArrowBackIosNewIcon fontSize={isMobile ? "small" : "medium"} />
+              </IconButton>
+            )}
+
+            <AutoPlaySwipeableViews
+              axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+              index={activeStep}
+              onChangeIndex={setActiveStep}
+              enableMouseEvents
+              interval={6000}
+              resistance
+            >
+              {services.map((service) => (
+                <Fade in={true} timeout={1000} key={service.id}>
+                  <Box 
+                    sx={{ 
+                      px: { xs: 2, md: 4 },
+                      display: 'flex',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <Box sx={{ maxWidth: 500, width: '100%' }}>
+                      <ServiceCard service={service} />
+                    </Box>
+                  </Box>
+                </Fade>
+              ))}
+            </AutoPlaySwipeableViews>
+            
+            {services.length > 0 && (
+              <IconButton 
+                onClick={() => setActiveStep((prevActiveStep) => 
+                  (prevActiveStep + 1) % services.length
+                )}
+                sx={{
+                  position: 'absolute',
+                  right: { xs: -16, md: -60 },
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  bgcolor: 'background.paper',
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
+                  zIndex: 2,
+                  '&:hover': {
+                    bgcolor: 'background.paper',
+                  }
+                }}
+                size={isMobile ? "small" : "medium"}
+              >
+                <ArrowForwardIosIcon fontSize={isMobile ? "small" : "medium"} />
+              </IconButton>
+            )}
+            
+            {/* Carousel Indicators */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              {services.map((_, index) => (
+                <Box
+                  key={index}
+                  onClick={() => setActiveStep(index)}
+                  sx={{
+                    width: index === activeStep ? 24 : 12,
+                    height: 8,
+                    borderRadius: 4,
+                    mx: 0.5,
+                    bgcolor: index === activeStep ? 'primary.main' : 'grey.300',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                />
+              ))}
             </Box>
-          </Fade>
+          </Box>
         )}
         
         <Fade in={true} timeout={3000}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
             <Button 
               component={RouterLink} 
               to="/services" 
@@ -142,8 +234,10 @@ const ServicesSection = () => {
                 letterSpacing: 0.5,
                 boxShadow: '0 4px 14px rgba(63, 81, 181, 0.3)',
                 '&:hover': {
-                  boxShadow: '0 6px 20px rgba(63, 81, 181, 0.4)'
-                }
+                  boxShadow: '0 6px 20px rgba(63, 81, 181, 0.4)',
+                  transform: 'translateY(-2px)'
+                },
+                transition: 'transform 0.3s, box-shadow 0.3s'
               }}
               endIcon={<Box component="span" sx={{ ml: 0.5 }}>→</Box>}
             >

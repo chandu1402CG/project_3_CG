@@ -292,26 +292,15 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, setIsLoggedIn: propSetIsLoggedIn }
             </ListItem>
           </>
         ) : (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton
-                component={RouterLink}
-                to="/register"
-                sx={{ textAlign: "center" }}
-              >
-                <ListItemText primary="Register" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
-                component={RouterLink}
-                to="/login"
-                sx={{ textAlign: "center" }}
-              >
-                <ListItemText primary="Login" />
-              </ListItemButton>
-            </ListItem>
-          </>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={RouterLink}
+              to="/login"
+              sx={{ textAlign: "center" }}
+            >
+              <ListItemText primary="Login" />
+            </ListItemButton>
+          </ListItem>
         )}
       </List>
     </Box>
@@ -617,34 +606,22 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, setIsLoggedIn: propSetIsLoggedIn }
                 </Menu>
               </Box>
             ) : (
-              <>
-                <Button
-                  component={RouterLink}
-                  to="/register"
-                  variant="outlined"
-                  color="primary"
-                  sx={{
-                    mr: 2,
-                    borderRadius: 1,
-                    "&.Mui-disabled": {
-                      borderColor: "rgba(0, 0, 0, 0.12)",
-                      color: "rgba(0, 0, 0, 0.26)",
-                    },
-                  }}
-                  disabled={isLoggedIn}
-                >
-                  Register
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/login"
-                  variant="contained"
-                  color="primary"
-                  sx={{ borderRadius: 1 }}
-                >
-                  Login
-                </Button>
-              </>
+              <Button
+                component={RouterLink}
+                to="/login"
+                variant="contained"
+                color="primary"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-disabled": {
+                    borderColor: "rgba(0, 0, 0, 0.12)",
+                    color: "rgba(0, 0, 0, 0.26)",
+                  },
+                }}
+                disabled={isLoggedIn}
+              >
+                Login
+              </Button>
             )}
           </Box>
         </Toolbar>

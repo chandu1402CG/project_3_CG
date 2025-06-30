@@ -18,6 +18,9 @@ import CareCentersPage from './pages/CareCentersPage'
 import ServicesPage from './pages/ServicesPage'
 import PaymentPage from './pages/PaymentPage'
 import ProfilePage from './pages/ProfilePage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import FeedbackPage from './pages/FeedbackPage'
+import SchedulePage from './pages/SchedulePage'
 
 // Create a theme
 const theme = createTheme({
@@ -58,6 +61,9 @@ function App() {
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/schedule" element={<SchedulePage />} />
               {/* Add more routes as needed */}
             </Routes>
           </Container>

@@ -1,38 +1,6 @@
 {
   "testimonials": [
     {
-      "id": "t1",
-      "name": "Jennifer Adams",
-      "role": "Working Parent",
-      "image": "/images/testimonials/jennifer.jpg",
-      "content": "Home Health Care Center has been a lifesaver for our family. Their elder care services allowed my father to stay comfortable in his own home while receiving professional care. The staff is compassionate, reliable, and truly cares about their clients.",
-      "rating": 5
-    },
-    {
-      "id": "t2",
-      "name": "Michael Thompson",
-      "role": "Pet Owner",
-      "image": "/images/testimonials/michael.jpg",
-      "content": "I was worried about leaving my pets while on business trips, but HHCC's pet care services put my mind at ease. The caregivers sent daily updates and photos, and my pets were happy and healthy when I returned. Highly recommend!",
-      "rating": 5
-    },
-    {
-      "id": "t3",
-      "name": "Sarah Johnson",
-      "role": "Mother of Two",
-      "image": "/images/testimonials/sarah.jpg",
-      "content": "Finding reliable childcare was a struggle until we discovered HHCC. Their caregivers are professional, engaging, and my children absolutely adore them. The peace of mind knowing my kids are in good hands is priceless.",
-      "rating": 4
-    },
-    {
-      "id": "t4",
-      "name": "Robert Chen",
-      "role": "Son of Elder Care Client",
-      "image": "/images/testimonials/robert.jpg",
-      "content": "After my mother's surgery, we needed specialized care at home. HHCC provided skilled nurses who were knowledgeable and kind. Their attention to detail and genuine concern for my mother's well-being made all the difference in her recovery.",
-      "rating": 5
-    },
-    {
       "id": "t5",
       "name": "Emily Rodriguez",
       "role": "Working Professional",
@@ -54,6 +22,22 @@
       "role": "Working Parent",
       "content": "Awesome !!!",
       "rating": 5,
+      "image": "/images/testimonials/default.jpg"
+    },
+    {
+      "id": "t8",
+      "name": "Nandiki Chandrashekhar",
+      "role": "Working Parent",
+      "content": "Great Service",
+      "rating": 5,
+      "image": "/images/testimonials/default.jpg"
+    },
+    {
+      "id": "t9",
+      "name": "Nandiki Chandrashekhar",
+      "role": "Working Parent",
+      "content": "Great Service",
+      "rating": 4,
       "image": "/images/testimonials/default.jpg"
     }
   ]

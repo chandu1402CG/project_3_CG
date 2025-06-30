@@ -59,6 +59,12 @@
           "name": "Mother",
           "age": "60",
           "type": "elder"
+        },
+        {
+          "id": "31fbfc9e-cfd0-46ae-8a01-b6052b5cc968",
+          "name": "elder21",
+          "age": "58",
+          "type": "elder"
         }
       ],
       "pets": [
@@ -73,7 +79,7 @@
       "id": "f7e525a1-c38d-4e9a-8694-98a7286e6c1d",
       "username": "testuser1",
       "email": "testuser1@gmail.com",
-      "password": "123456",
+      "password": "1234567",
       "firstName": "John",
       "lastName": "Smith",
       "phone": "5551234567",
@@ -128,14 +134,15 @@
           "name": "Robert Johnson",
           "age": "68",
           "type": "elder"
+        },
+        {
+          "id": "139fd8ae-1a60-4c5d-b76f-4c193614528c",
+          "name": "testElder1",
+          "age": "61",
+          "type": "elder"
         }
       ],
       "pets": [
-        {
-          "id": "b1a0z9y8-x7w6-v5u4-t3s2-r1q0p9o8n7m6",
-          "name": "Rex",
-          "type": "dog"
-        },
         {
           "id": "l5k4j3h2-g1f0-e9d8-c7b6-a5f4e3d2c1b0",
           "name": "Goldie",

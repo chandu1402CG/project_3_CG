@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Card, CardContent, Divider, Fade, IconButton, useTheme, useMediaQuery, Paper, CircularProgress, Rating, Grid } from '@mui/material';
+import { Box, Container, Typography, Card, CardContent, Divider, Fade, IconButton, useTheme, useMediaQuery, Paper, CircularProgress, Rating, Grid, Button } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import { useNavigate } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
 import Logo from '/Logo.png';
 import { fetchTestimonials } from '../../services/api';
-import FeedbackForm from './FeedbackForm';
 
 // Autoplay wrapper for SwipeableViews
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const TestimonialsSection = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeStep, setActiveStep] = useState(0);
   const [testimonials, setTestimonials] = useState([]);
@@ -42,17 +44,6 @@ const TestimonialsSection = () => {
   useEffect(() => {
     fetchTestimonialsData();
   }, []);
-
-  const handleFeedbackSubmitted = (newTestimonial) => {
-    // Add the new testimonial to the existing list
-    setTestimonials((currentTestimonials) => [
-      ...currentTestimonials,
-      newTestimonial
-    ]);
-    
-    // Set the active step to the newly added testimonial
-    setActiveStep(testimonials.length);
-  };
 
   const maxSteps = testimonials.length;
 
@@ -287,15 +278,15 @@ const TestimonialsSection = () => {
           )}
         </Box>
         
-        {/* Feedback Form Section */}
-        <Box sx={{ mt: 10 }}>
+        {/* Feedback Button Section */}
+        <Box sx={{ mt: 10, textAlign: 'center' }}>
           <Fade in={true} timeout={1000}>
             <Typography 
               variant="h4" 
               component="h3" 
               align="center" 
               sx={{ 
-                mb: 5,
+                mb: 4,
                 fontWeight: 600,
                 backgroundImage: "linear-gradient(45deg, #3f51b5, #f50057)",
                 backgroundSize: "100%",
@@ -308,11 +299,27 @@ const TestimonialsSection = () => {
             </Typography>
           </Fade>
           
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={8} sx={{ mx: 'auto' }}>
-              <FeedbackForm onSubmitSuccess={handleFeedbackSubmitted} />
-            </Grid>
-          </Grid>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<FeedbackIcon />}
+            onClick={() => navigate('/feedback')}
+            sx={{
+              py: 1.5,
+              px: 4,
+              fontSize: '1.1rem',
+              borderRadius: 2,
+              boxShadow: '0 4px 10px rgba(63, 81, 181, 0.25)',
+              '&:hover': {
+                boxShadow: '0 6px 12px rgba(63, 81, 181, 0.35)',
+                transform: 'translateY(-2px)'
+              },
+              transition: 'transform 0.3s, box-shadow 0.3s'
+            }}
+          >
+            Submit Your Feedback
+          </Button>
         </Box>
       </Container>
     </Box>
